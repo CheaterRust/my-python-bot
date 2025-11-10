@@ -10,6 +10,7 @@ import json
 import re
 import tempfile
 import psutil  # pip install psutil
+import ffmpeg  # pip install ffmpeg-python
 
 # ----------------------------------------------------
 # 1. КОНФИГ И ЛОГИ
@@ -26,7 +27,6 @@ BOT_TOKEN = config.get("BOT_TOKEN")
 if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN не найден в config.json")
 
-FFMPEG_BIN_DIR = r"D:\PythonTools\py\DownloadYouTybe\Bin"
 YTDLP_PATH = 'yt-dlp'
 DOWNLOAD_TIMEOUT = 600
 ACTIVE_DOWNLOAD_FLAG = False
@@ -70,6 +70,7 @@ def download_audio_from_youtube(url: str) -> tuple[Path, str]:
     out_template = "%(title)s.%(ext)s"
     creation_flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
 
+    # Если ffmpeg есть в PATH, yt-dlp сам его найдет
     proc = subprocess.Popen([
         YTDLP_PATH,
         "--no-check-certificate",
@@ -78,7 +79,6 @@ def download_audio_from_youtube(url: str) -> tuple[Path, str]:
         "--format", "bestaudio/best",
         "--extract-audio",
         "--audio-format", "mp3",
-        "--ffmpeg-location", FFMPEG_BIN_DIR,
         "--output", out_template,
         url
     ], cwd=tmpdir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
